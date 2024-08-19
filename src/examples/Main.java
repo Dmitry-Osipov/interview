@@ -28,6 +28,7 @@ public class Main {
         basicExecutorService();
         System.out.println("-----------------------------------");
         forkJoinPool();
+        System.out.println("-----------------------------------");
     }
 
     private static void mapAndFlatMap() {
