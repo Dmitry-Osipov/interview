@@ -24,7 +24,7 @@ bin/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
+### VS Code ####
 .vscode/
 
 ### Mac OS ###
