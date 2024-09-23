@@ -13,6 +13,7 @@ public class EnjoyGenericsWithCollection {
 
         Collection<Object> objects = new ArrayList<>();
         numStack.popAll(objects);
+        System.out.println(objects);
 
         // В этих примерах важно понимать PECS (producer extends - consumer super). Правило мнемонически связано с Get
         // and Put Principle. При взятии к себе внешняя коллекция является продюсером, соответственно, по принципу Get
