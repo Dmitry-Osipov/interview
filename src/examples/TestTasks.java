@@ -16,6 +16,7 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TestTasks {
     public static void main(String[] args) {
@@ -30,6 +31,8 @@ public class TestTasks {
         collectionTasksHarder();
         System.out.println("----------------------------------------");
         collectionMiddleTasks();
+        System.out.println("----------------------------------------");
+        streamMiddleTasks();
     }
 
     public static void interview() {
@@ -606,4 +609,265 @@ public class TestTasks {
 
         return true;
     }
+
+    public static void streamMiddleTasks() {
+        // У тебя есть список объектов Employee с полями name, age, department и salary. Необходимо найти сотрудника
+        // с самой высокой зарплатой среди тех, кто работает в департаменте "IT" и старше 25 лет.
+        List<Employee> employees = List.of(
+                new Employee("Stas", 26, "IT", 37_000),
+                new Employee("Sava", 30, "HR", 35_000),
+                new Employee("Slava", 21, "IT", 87_000),
+                new Employee("Dima", 33, "Sales", 135_000),
+                new Employee("Bogdan", 39, "IT", 300_000),
+                new Employee("Kirill", 45, "IT", 250_000)
+        );
+        System.out.println(employees.stream()
+                .filter(emp -> emp.department().equals("IT") && emp.age() > 25)
+                .max(Comparator.comparingInt(Employee::salary))
+                .orElseThrow());
+        System.out.println("##########################");
+        // Дана строка текста. Нужно разделить строку на отдельные слова, отфильтровать слова длиной менее 4 символов,
+        // затем найти количество уникальных слов, игнорируя регистр.
+        List<String> strings = List.of("AqA", "aQa", "Equals", "Aqua", "Qq", "qq");
+        System.out.println(strings.stream()
+                .filter(str -> str.length() < 4)
+                .map(String::toLowerCase)
+                .distinct()
+                .toList());
+        System.out.println("##########################");
+        // Есть список объектов Person с полями name, age, и city. Нужно сгруппировать людей по городам, а затем для
+        // каждого города найти самого младшего человека.
+        List<Person> persons = List.of(
+                new Person("Oleg", 26, "NY"),
+                new Person("Fatima", 56, "LA"),
+                new Person("John", 20, "Chicago"),
+                new Person("Anton", 76, "NY"),
+                new Person("Lera", 35, "LA"),
+                new Person("Nadya", 12, "Chicago"),
+                new Person("Niraz", 50, "NY"),
+                new Person("Sveta", 19, "LA"),
+                new Person("Dima", 24, "Chicago")
+        );
+        Map<String, List<Person>> groupByCities = persons.stream()
+                .collect(Collectors.groupingBy(Person::city));
+        groupByCities.forEach((k, v) -> System.out.println(k + ": " + getYoungestPerson(v)));
+        System.out.println("##########################");
+        // Есть список объектов Product с полями id, name и price. Нужно создать Map<Integer, String>, где ключом
+        // будет id, а значением – имя продукта, при этом оставить только те продукты, у которых цена больше 1000.
+        List<Product> products = List.of(
+                new Product(1L, "Key", 1_000),
+                new Product(2L, "Car", 12_000),
+                new Product(3L, "Board", 25_000),
+                new Product(4L, "Table", 5_000),
+                new Product(5L, "Boat", 1_000),
+                new Product(6L, "SAP", 500),
+                new Product(7L, "Barbie", 200)
+        );
+        products.stream()
+                .filter(product -> product.price() > 1000)
+                .collect(Collectors.toMap(Product::id, Product::name))
+                .forEach((k, v) -> System.out.println(k + ": " + v));
+        System.out.println("##########################");
+        // Дан список строк, представляющих транзакции в формате "<name>,<amount>". Нужно преобразовать этот список в
+        // Map<String, Double>, где ключом будет имя, а значением – общая сумма транзакций для этого человека, при этом
+        // учитывать только транзакции, превышающие 500.
+        // Input:
+        // List<String> transactions = List.of(
+        //     "John,600",
+        //     "Alice,450",
+        //     "John,300",
+        //     "Alice,700",
+        //     "Bob,800",
+        //     "John,900",
+        //     "Bob,200",
+        //     "Alice,1000"
+        // );
+        // Output:
+        // {
+        //     "John" : 1500.0,
+        //     "Alice" : 1700.0,
+        //     "Bob" : 800.0
+        // }
+        List<String> transactions = List.of(
+                "John,600",
+                "Alice,450",
+                "John,300",
+                "Alice,700",
+                "Bob,800",
+                "John,900",
+                "Bob,200",
+                "Alice,1000"
+        );
+        transactions.stream()
+                .map(str -> str.split(","))
+                .filter(arr -> Integer.parseInt(arr[1]) > 500)
+                .collect(Collectors.toMap(arr -> arr[0], arr -> Double.parseDouble(arr[1]), Double::sum))
+                .forEach((k, v) -> System.out.println(k + ": " + v));
+        System.out.println("##########################");
+        // Дан список целых чисел List<Integer> numbers и целое число targetSum. Нужно найти все уникальные подмножества
+        // чисел, которые в сумме дают targetSum. Каждое число может быть использовано только один раз.
+        // Пример:
+        // Input: numbers = [1, 2, 3, 4, 5], targetSum = 5
+        // Output: [[1, 4], [2, 3], [5]]
+        System.out.println(findSubsets(List.of(1, 2, 3, 4, 5), 5));
+        System.out.println("##########################");
+        // Даны два списка объектов Employee с полями name, age, department и salary. Нужно объединить эти два списка,
+        // отфильтровать сотрудников из департамента "Sales", а затем отсортировать по возрасту в порядке возрастания и
+        // по зарплате в порядке убывания для одинакового возраста.
+        // Пример:
+        // Вход: Два списка сотрудников
+        // Выход: Список сотрудников отсортирован по возрасту и зарплате, без сотрудников из "Sales".
+        List<Employee> employees1 = List.of(
+                new Employee("Stas", 25, "Sales", 500_000),
+                new Employee("Oleg", 40, "Sales", 250_000),
+                new Employee("Sergey", 20, "IT", 20_000),
+                new Employee("Dima", 45, "IT", 65_000),
+                new Employee("Misha", 24, "HR", 180_000)
+        );
+        List<Employee> employees2 = List.of(
+                new Employee("Ramzan", 45, "Cleaning", 15_000),
+                new Employee("Dasha", 20, "IT", 190_000),
+                new Employee("Sveta", 23, "Sales", 250_000)
+        );
+        Stream.concat(employees1.stream(), employees2.stream())
+                .filter(emp -> !emp.department().equals("Sales"))
+                .sorted(Comparator.comparing(Employee::age)
+                        .thenComparing(Comparator.comparing(Employee::salary)
+                                .reversed()))
+                .forEach(System.out::println);
+        System.out.println("##########################");
+        // Дан список строк List<String> strings. Нужно найти первую строку, которая является палиндромом, не учитывая
+        // пробелы и регистр, и вернуть её. Если таких строк нет, вернуть Optional.empty().
+        // Пример:
+        // Input: strings = ["Hello", "A man a plan a canal Panama", "abc", "level"]
+        // Output: "A man a plan a canal Panama"
+        List<String> strings1 = List.of("Hello", "A man a plan a canal Panama", "abc", "level");
+        Optional<String> optional = strings1.stream()
+                .filter(TestTasks::isPalindromic)
+                .findFirst();
+        System.out.println(optional.orElseThrow());
+        System.out.println("##########################");
+        // Дан список строк List<String> strings. Нужно сгруппировать строки по их длине, а затем для каждой группы
+        // строк посчитать общее количество гласных букв (a, e, i, o, u). Возвращаемый результат должен быть картой
+        // Map<Integer, Long>, где ключ – это длина строки, а значение – общее количество гласных в строках такой длины.
+        // Пример:
+        // Input: strings = ["apple", "banana", "kiwi", "orange", "grape"]
+        // Output: {5=3, 6=6}
+        List<String> fruits = List.of("apple", "banana", "kiwi", "orange", "grape");
+        Map<Integer, List<String>> fruitsLengthMap = fruits.stream()
+                .collect(Collectors.groupingBy(String::length));
+        fruitsLengthMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> countAvgVowels(entry.getValue())))
+                .forEach((k, v) -> System.out.println(k + ": " + v));
+        System.out.println("##########################");
+        // Дан список объектов Review с полями productId, rating (оценка от 1 до 5) и reviewText. Нужно найти продукт,
+        // который получил наибольшее количество оценок 5, и вернуть его productId. Если таких продуктов несколько,
+        // вернуть любой из них. Если нет ни одной оценки 5, вернуть Optional.empty().
+        // Пример:
+        // Input: Список отзывов с оценками
+        // Output: productId, который чаще всего получал оценку 5.
+        List<Review> reviews = List.of(
+                new Review(1L, 5, ""),
+                new Review(1L, 5, ""),
+                new Review(1L, 4, ""),
+                new Review(1L, 3, ""),
+                new Review(1L, 5, ""),
+                new Review(2L, 1, ""),
+                new Review(2L, 2, ""),
+                new Review(2L, 3, ""),
+                new Review(2L, 5, ""),
+                new Review(2L, 5, ""),
+                new Review(3L, 5, ""),
+                new Review(3L, 5, ""),
+                new Review(3L, 1, ""),
+                new Review(3L, 1, ""),
+                new Review(3L, 2, ""),
+                new Review(3L, 5, ""),
+                new Review(3L, 5, "")
+        );
+        Map<Long, Integer> productsWithRatings = reviews.stream()
+                .filter(review -> review.rating == 5)
+                .collect(Collectors.toMap(Review::productId, Review::rating, Integer::sum));
+        System.out.println(productsWithRatings.entrySet().stream()
+                .max(Map.Entry.comparingByValue(Comparator.naturalOrder()))
+                        .map(Map.Entry::getKey)
+                .orElseThrow());
+    }
+
+    private static Person getYoungestPerson(List<Person> list) {
+        return list.stream()
+                .min(Comparator.comparingInt(Person::age))
+                .orElseThrow();
+    }
+
+    private static List<List<Integer>> findSubsets(List<Integer> numbers, int targetSum) {
+        List<List<Integer>> result = new ArrayList<>();
+        findSubsetsRecursive(numbers, 0, targetSum, new ArrayList<>(), result);
+        return result;
+    }
+
+    private static void findSubsetsRecursive(List<Integer> numbers, int start, int targetSum,
+                                             List<Integer> current, List<List<Integer>> result) {
+        if (targetSum == 0) {
+            result.add(new ArrayList<>(current));
+            return;
+        }
+
+        if (targetSum < 0) {
+            return;
+        }
+
+        for (int i = start; i < numbers.size(); i++) {
+            current.add(numbers.get(i));
+            findSubsetsRecursive(numbers, i + 1, targetSum - numbers.get(i), current, result);
+            current.remove(current.size() - 1);
+        }
+    }
+
+    private static boolean isPalindromic(String str) {
+        Deque<Character> stack = new ArrayDeque<>();
+        for (char ch : str.toCharArray()) {
+            if (Character.isLetterOrDigit(ch)) {
+                stack.push(Character.toLowerCase(ch));
+            }
+        }
+
+        while (stack.size() > 1) {
+            Character front = stack.removeFirst();
+            Character back = stack.removeLast();
+            if (!front.equals(back)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static double countAvgVowels(List<String> strs) {
+        Set<Character> vowels = Set.of('a', 'e', 'i', 'o', 'u');
+        List<Integer> countVowels = new ArrayList<>();
+        int count = 0;
+        for (String str : strs) {
+            for (char ch : str.toCharArray()) {
+                if (vowels.contains(Character.toLowerCase(ch))) {
+                    count++;
+                }
+            }
+            countVowels.add(count);
+            count = 0;
+        }
+
+        return countVowels.stream()
+                .mapToInt(Integer::intValue)
+                .average()
+                .orElseThrow();
+    }
+
+    private record Employee(String name, Integer age, String department, Integer salary) {}
+
+    private record Person(String name, Integer age, String city) {}
+
+    private record Product(Long id, String name, Integer price) {}
+
+    private record Review(Long productId, Integer rating, String reviewText) {}
 }
