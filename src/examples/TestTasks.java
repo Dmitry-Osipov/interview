@@ -1,13 +1,19 @@
 package examples;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,6 +28,8 @@ public class TestTasks {
         collectionTasks();
         System.out.println("----------------------------------------");
         collectionTasksHarder();
+        System.out.println("----------------------------------------");
+        collectionMiddleTasks();
     }
 
     public static void interview() {
@@ -267,7 +275,7 @@ public class TestTasks {
             if (current > max) {
                 res = max;
                 max = current;
-            } else if (current > res) {
+            } else if (current < max && current > res) {
                 res = current;
             }
         }
@@ -441,7 +449,7 @@ public class TestTasks {
         return map;
     }
 
-    public static List<List<String>> getGroupingAnagram(List<String> list) {
+    private static List<List<String>> getGroupingAnagram(List<String> list) {
         if (list == null || list.isEmpty()) {
             return List.of();
         }
@@ -456,5 +464,146 @@ public class TestTasks {
         }
 
         return new ArrayList<>(map.values());
+    }
+
+    public static void collectionMiddleTasks() {
+        // Есть список List<Integer> numbers, который может содержать дубликаты. Необходимо написать код, который
+        // удаляет дубликаты, но при этом сохраняет порядок элементов.
+        // Пример:
+        // Input: [4, 5, 6, 7, 4, 5, 9]
+        // Output: [4, 5, 6, 7, 9]
+        System.out.println(deleteDuplicates(List.of(4, 5, 6, 7, 4, 5, 9)));
+        System.out.println("##########################");
+        // Дан список чисел. Найдите первое число, которое повторяется. Если такого числа нет, верните -1.
+        // Input: [5, 3, 4, 3, 5, 6]
+        // Output: 3
+        // Input: [1, 2, 3, 4]
+        // Output: -1
+        System.out.println(findFirstDuplicate(List.of(5, 3, 4, 3, 5, 6)).orElse(-1));
+        System.out.println(findFirstDuplicate(List.of(1, 2, 3, 4)).orElse(-1));
+        System.out.println("##########################");
+        // Дан массив целых чисел int[] nums и целое число k. Нужно вернуть список из k наиболее часто встречающихся
+        // элементов.
+        // Input: nums = [1,1,1,2,2,3], k = 2
+        // Output: [1, 2]
+        System.out.println(Arrays.toString(findTopK(new int[] {1, 1, 1, 2, 2, 3}, 2)));
+        System.out.println(Arrays.toString(findTopK(new int[] {1, 1, 1, 2, 2}, 3)));
+        System.out.println("##########################");
+        // Напиши метод, который находит пересечение двух списков, включая кратность элементов (если элемент
+        // встречается несколько раз в обоих списках, он должен быть в результате столько же раз).
+        // Input: list1 = [1, 2, 2, 3], list2 = [2, 2, 3]
+        // Output: [2, 2, 3]
+        System.out.println(findIntersections(List.of(1, 2, 2, 3), List.of(2, 2, 3)));
+        System.out.println(findIntersections(List.of(3, 4, 5, 1, 2, 2), List.of(2, 3, 3, 3, 1)));
+        System.out.println("##########################");
+        // Проверь, является ли строка палиндромом, игнорируя пробелы, регистр и небуквенные символы. Для этого
+        // используй коллекции типа Deque.
+        // Input: "A man, a plan, a canal, Panama"
+        // Output: true
+        System.out.println(isPalindrome("A man, a plan, a canal, Panama"));
+        System.out.println(isPalindrome("A man, a plan, a canal, Porsche"));
+    }
+
+    private static <T> Set<T> deleteDuplicates(List<T> list) {
+        if (list == null || list.isEmpty()) {
+            return Set.of();
+        }
+
+        return new LinkedHashSet<>(list);
+    }
+
+    private static <T> Optional<T> findFirstDuplicate(List<T> list) {
+        if (list == null || list.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Set<T> seen = new HashSet<>();
+        for (T t : list) {
+            if (seen.contains(t)) {
+                return Optional.of(t);
+            }
+            seen.add(t);
+        }
+
+        return Optional.empty();
+    }
+
+    private static int[] findTopK(int[] array, int k) {
+        if (array == null || array.length == 0) {
+            return new int[0];
+        }
+
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int num : array) {
+            map.put(num, map.getOrDefault(num, 0) + 1);
+        }
+
+        Queue<Integer> priority = new PriorityQueue<>((num1, num2) -> map.get(num2) - map.get(num1));
+        priority.addAll(map.keySet());
+        int[] result = new int[k];
+        for (int i = 0; i < k; i++) {
+            if (!priority.isEmpty()) {
+                result[i] = priority.poll();
+            } else {
+                return new int[0];
+            }
+        }
+
+        return result;
+    }
+
+    private static <T> List<T> findIntersections(List<T> list1, List<T> list2) {
+        if (list1 == null || list2 == null || list1.isEmpty() || list2.isEmpty()) {
+            return List.of();
+        }
+
+        Map<T, Integer> map1 = new HashMap<>();
+        for (T elem : list1) {
+            map1.put(elem, map1.getOrDefault(elem, 0) + 1);
+        }
+
+        Map<T, Integer> map2 = new HashMap<>();
+        for (T elem : list2) {
+            map2.put(elem, map2.getOrDefault(elem, 0) + 1);
+        }
+
+        List<T> intersections = new ArrayList<>();
+        for (Map.Entry<T, Integer> entry : map1.entrySet()) {
+            T key = entry.getKey();
+            Integer value = entry.getValue();
+            Integer count = map2.get(key);
+            if (count != null) {
+                count = count > value ? value : count;
+                for (int i = 0; i < count; i++) {
+                    intersections.add(key);
+                }
+            }
+        }
+
+        return intersections;
+    }
+
+    private static boolean isPalindrome(String str) {
+        if (str == null || str.isBlank()) {
+            return true;
+        }
+
+        Deque<Character> stack = new ArrayDeque<>();
+        Deque<Character> queue = new ArrayDeque<>();
+        for (char ch : str.toCharArray()) {
+            if (Character.isLetterOrDigit(ch)) {
+                Character lower = Character.toLowerCase(ch);
+                stack.push(lower);
+                queue.add(lower);
+            }
+        }
+
+        for (Character ch : stack) {
+            if (!ch.equals(queue.remove())) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
