@@ -19,6 +19,7 @@
     3) Под, который установил блокировку, отправляет сообщение на почту
     4) После выполнения задачи блокировка снимается
 ```java
+@Scheduled(cron = "0 0 15 15 * ?")
 public void sendEmail() {
     boolean lockAcquired = redisTemplate.opsForValue().setIfAbsent("emailTaskLock", "lock", 10, TimeUnit.MINUTES);
     if (lockAcquired) {
